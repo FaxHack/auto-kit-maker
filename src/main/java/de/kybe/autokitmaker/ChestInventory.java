@@ -1,6 +1,7 @@
 package de.kybe.autokitmaker;
 
 import net.minecraft.world.inventory.ChestMenu;
+import net.minecraft.world.inventory.ShulkerBoxMenu;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,14 +14,26 @@ public class ChestInventory {
     private final List<ItemStack> expandedItems = new ArrayList<>();
 
     public static ChestInventory getChestInventoryFromScreen() {
-        if (mc.player == null) return null;
-        if (!(mc.player.containerMenu instanceof ChestMenu chestMenu)) return null;
-        int size = chestMenu.getContainer().getContainerSize();
-        ChestInventory chestInventory = new ChestInventory();
-        for (int i = 0; i < size; i++) {
-            chestInventory.addItem(chestMenu.slots.get(i).getItem());
+        if (mc.player == null)
+            return null;
+
+        if (mc.player.containerMenu instanceof ChestMenu chestMenu) {
+            int size = chestMenu.getContainer().getContainerSize();
+            ChestInventory chestInventory = new ChestInventory();
+            for (int i = 0; i < size; i++) {
+                chestInventory.addItem(chestMenu.slots.get(i).getItem());
+            }
+            return chestInventory;
+        } else if (mc.player.containerMenu instanceof ShulkerBoxMenu shulkerMenu) {
+            int size = 27;
+            ChestInventory chestInventory = new ChestInventory();
+            for (int i = 0; i < size; i++) {
+                chestInventory.addItem(shulkerMenu.slots.get(i).getItem());
+            }
+            return chestInventory;
         }
-        return chestInventory;
+
+        return null;
     }
 
     private static String normalizeName(@Nullable String name) {
@@ -62,36 +75,45 @@ public class ChestInventory {
 
     public boolean hasItem(ItemStack otherItem) {
         for (ItemStack item : getItems()) {
-            if (ItemStack.matches(item, otherItem)) return true;
+            if (ItemStack.matches(item, otherItem))
+                return true;
         }
         return false;
     }
 
-    public boolean hasItem(AutoKitItem otherItem, boolean enchantSensitive, boolean onlySpecificEnchantsMatterToggled, String onlySpecificEnchantsMatter, @Nullable String customName) {
+    public boolean hasItem(AutoKitItem otherItem, boolean enchantSensitive, boolean onlySpecificEnchantsMatterToggled,
+            String onlySpecificEnchantsMatter, @Nullable String customName) {
         String targetName = normalizeName(customName);
         for (ItemStack item : getItems()) {
-            if (!otherItem.matches(item, !enchantSensitive, onlySpecificEnchantsMatterToggled, onlySpecificEnchantsMatter))
+            if (!otherItem.matches(item, !enchantSensitive, onlySpecificEnchantsMatterToggled,
+                    onlySpecificEnchantsMatter))
                 continue;
-            if (getItemCustomName(item).equals(targetName)) return true;
+            if (getItemCustomName(item).equals(targetName))
+                return true;
         }
         return false;
     }
 
-    public int getItemCount(AutoKitItem otherItem, boolean enchantSensitive, boolean onlySpecificEnchantsMatterToggled, String onlySpecificEnchantsMatter, @Nullable String customName) {
+    public int getItemCount(AutoKitItem otherItem, boolean enchantSensitive, boolean onlySpecificEnchantsMatterToggled,
+            String onlySpecificEnchantsMatter, @Nullable String customName) {
         int amount = 0;
         String targetName = normalizeName(customName);
         for (ItemStack item : getItems()) {
-            if (!otherItem.matches(item, !enchantSensitive, onlySpecificEnchantsMatterToggled, onlySpecificEnchantsMatter))
+            if (!otherItem.matches(item, !enchantSensitive, onlySpecificEnchantsMatterToggled,
+                    onlySpecificEnchantsMatter))
                 continue;
-            if (getItemCustomName(item).equals(targetName)) amount += item.getCount();
+            if (getItemCustomName(item).equals(targetName))
+                amount += item.getCount();
         }
         return amount;
     }
 
-    public Map<String, Integer> getMatchingItemCountsByName(AutoKitItem otherItem, boolean enchantSensitive, boolean onlySpecificEnchantsMatterToggled, String onlySpecificEnchantsMatter) {
+    public Map<String, Integer> getMatchingItemCountsByName(AutoKitItem otherItem, boolean enchantSensitive,
+            boolean onlySpecificEnchantsMatterToggled, String onlySpecificEnchantsMatter) {
         Map<String, Integer> counts = new HashMap<>();
         for (ItemStack item : getItems()) {
-            if (!otherItem.matches(item, !enchantSensitive, onlySpecificEnchantsMatterToggled, onlySpecificEnchantsMatter))
+            if (!otherItem.matches(item, !enchantSensitive, onlySpecificEnchantsMatterToggled,
+                    onlySpecificEnchantsMatter))
                 continue;
 
             String name = getItemCustomName(item);
